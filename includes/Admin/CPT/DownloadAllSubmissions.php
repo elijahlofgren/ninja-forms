@@ -75,12 +75,22 @@ class NF_Admin_CPT_DownloadAllSubmissions extends NF_Step_Processing {
 
         if ( is_array( $subs_results ) && ! empty( $subs_results ) ) {
             $upload_dir = wp_upload_dir();
-            $file_path = trailingslashit( $upload_dir['path'] ) . $this->args['filename'] . '.csv';
+            if( $this->args[ 'special_format' ]  == 'special_format_text'){
+                // TODO: Find way to make this be .txt extension.
+                $file_path = trailingslashit( $upload_dir['path'] ) . $this->args['filename'] . '.csv';
+            } else {
+                $file_path = trailingslashit( $upload_dir['path'] ) . $this->args['filename'] . '.csv';
+            }
             $myfile = fopen( $file_path, 'a' ) or die( 'Unable to open file!' );
             $x = 0;
             $export = '';
             foreach ( $subs_results as $sub ) {
-                $sub_export = NF_Database_Models_Submission::export( $this->args['form_id'], array( $sub->ID ), TRUE );
+                //$export .= 'special_format = ' . $this->args[ 'special_format' ] ;
+                if( $this->args[ 'special_format' ]  == 'special_format_text'){
+                    $sub_export = NF_Database_Models_Submission::exportText( $this->args['form_id'], array( $sub->ID ), TRUE );
+                } else {
+                    $sub_export = NF_Database_Models_Submission::export( $this->args['form_id'], array( $sub->ID ), TRUE );
+                }
                 if ( $x > 0 || $this->step > 1 ) {
                     $sub_export = substr( $sub_export, strpos( $sub_export, "\n" ) + 1 );
                 }
@@ -157,8 +167,15 @@ class NF_Admin_CPT_DownloadAllSubmissions extends NF_Step_Processing {
                     $url = admin_url( 'admin.php?page=nf-processing&action=download_all_subs&form_id=' . absint( $_REQUEST['form_id'] ) . '&redirect=' . $redirect );
                     $url = esc_url( $url );
                     ?>
-                    var button = '<a href="<?php echo $url; ?>" class="button-secondary nf-download-all"><?php echo __( 'Download All Submissions', 'ninja-forms' ); ?></a>';
+                    var button = '<a href="<?php echo $url; ?>" class="button-secondary nf-download-all"><?php echo __( 'Download All Submissions (CSV)', 'ninja-forms' ); ?></a>';
+                    <?php     
+                    $text_download_url = admin_url( 'admin.php?page=nf-processing&action=download_all_subs&special_format=special_format_text&form_id=' . absint( $_REQUEST['form_id'] ) . '&redirect=' . $redirect );
+                    $text_download_url = esc_url( $text_download_url );
+                    ?>
+                    var textDownloadButton = '<a href="<?php echo $text_download_url; ?>" class="button-secondary nf-download-all"><?php echo __( 'Download All Submissions (Text)', 'ninja-forms' ); ?></a>';
+                    
                     jQuery( '#doaction2' ).after( button );
+                    jQuery( '#doaction2' ).after( textDownloadButton );
                     <?php
                     }
 
