@@ -705,9 +705,14 @@ class NF_Subs_CPT {
 					$redirect = urlencode( remove_query_arg( array( 'download_all', 'download_file' ) ) );
 					$url = admin_url( 'admin.php?page=nf-processing&action=download_all_subs&form_id=' . absint( $_REQUEST['form_id'] ) . '&redirect=' . $redirect );
 					$url = esc_url( $url );
+
+                    $text_download_url = admin_url( 'admin.php?page=nf-processing&action=download_all_subs&special_format=special_format_text&form_id=' . absint( $_REQUEST['form_id'] ) . '&redirect=' . $redirect );
+					$text_download_url = esc_url( $text_download_url );
 					?>
-					var button = '<a href="<?php echo $url; ?>" class="button-secondary nf-download-all"><?php echo __( 'Download All Submissions', 'ninja-forms' ); ?></a>';
+					var button = '<a href="<?php echo $url; ?>" class="button-secondary nf-download-all"><?php echo __( 'Download All Submissions (CSV)', 'ninja-forms' ); ?></a>';
 					jQuery( '#doaction2' ).after( button );
+                    var button2 = '<a href="<?php echo $text_download_url; ?>" class="button-secondary nf-download-all"><?php echo __( 'Download All Submissions (Text)', 'ninja-forms' ); ?></a>';
+					jQuery( '#doaction2' ).after( button2 );
 					<?php
 					}
 
@@ -1195,9 +1200,14 @@ class NF_Subs_CPT {
 			$today = date( 'Y-m-d', current_time( 'timestamp' ) );
 
 			$filename = apply_filters( 'nf_download_all_filename', $form_name . '-all-subs-' . $today );
-
-			header( 'Content-type: application/csv');
-			header( 'Content-Disposition: attachment; filename="'.$filename .'.csv"' );
+            // WARNING: FIXME: Hard-coded to form id 5.
+            if( $_REQUEST['form_id']  == '5') {
+			   header( 'Content-type: text/plain');
+			   header( 'Content-Disposition: attachment; filename="'.$filename .'.txt"' );
+            } else {
+                header( 'Content-type: application/csv');
+			    header( 'Content-Disposition: attachment; filename="'.$filename .'.csv"' );
+            }
 			header( 'Pragma: no-cache');
 			header( 'Expires: 0' );
 

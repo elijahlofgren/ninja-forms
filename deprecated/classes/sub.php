@@ -391,6 +391,23 @@ class NF_Sub {
 		}
 	}
 
+    /**
+	 * Export our current submission as text.
+	 *
+	 * @access public
+	 * @param array $sub_ids
+	 * @param bool @return
+	 * @since 2.7
+	 * @return void
+	 */
+	public function export_text( $return = false ){
+		if ( $return ) {
+			return Ninja_Forms()->subs()->export_text( $this->sub_id, $return );
+		} else {
+			Ninja_Forms()->subs()->export_text( $this->sub_id, $return );
+		}
+	}
+
 	/**
 	 * Delete this submission
 	 *
